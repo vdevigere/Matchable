@@ -12,16 +12,16 @@ import redis.clients.jedis.Jedis;
 import com.viddu.recommend.bo.Matchable;
 
 public class RedisPersister implements MatchableItemPersiser {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(RedisPersister.class);
 	private Jedis client;
-	
+
 	private enum TagType {
 		DESC("descTag"), REC("recTag");
-		
+
 		private final String tagName;
-		
-		TagType(String name){
+
+		TagType(String name) {
 			this.tagName = name;
 		}
 
@@ -39,9 +39,9 @@ public class RedisPersister implements MatchableItemPersiser {
 	@Override
 	public Matchable findById(Long id) {
 		Matchable matchable = new Matchable(id, client.hget(getItemKey(id), "title"));
-		Set<String> descTagSet = client.smembers(getItemKeyForTags(id,TagType.DESC));
+		Set<String> descTagSet = client.smembers(getItemKeyForTags(id, TagType.DESC));
 		matchable.setDescriptionTags(descTagSet);
-		Set<String> recTagSet = client.smembers(getItemKeyForTags(id,TagType.REC));
+		Set<String> recTagSet = client.smembers(getItemKeyForTags(id, TagType.REC));
 		matchable.setRecommendationTags(recTagSet);
 		return matchable;
 	}
@@ -50,25 +50,17 @@ public class RedisPersister implements MatchableItemPersiser {
 	public void save(Matchable mItem) {
 		mItem.setId(client.incr("next.item.id"));
 		String sItemKey = getItemKey(mItem.getId());
-		String sItem_ID_Desc = getItemKeyForTags(mItem.getId(), TagType.DESC);
-		String sItem_ID_Rec = getItemKeyForTags(mItem.getId(), TagType.REC);
-		
-		
 		LOG.debug("Adding keys to hash Set {}", sItemKey);
-		
+
 		// Add the mItem fields to the hash set.
 		client.hset(sItemKey, "title", mItem.getTitle());
 
 		for (String tag : mItem.getDescriptionTags()) {
-			client.sadd(sItem_ID_Desc, tag.toString());
-			String sDesc_Tag_Items = getTagKeyForItem(tag, TagType.DESC); 
-			client.sadd(sDesc_Tag_Items, mItem.getId().toString());
+			addDesciptionTag(mItem.getId(), tag);
 		}
-		
+
 		for (String tag : mItem.getRecommendationTags()) {
-			client.sadd(sItem_ID_Rec, tag.toString());
-			String sRec_Tag_Items = getTagKeyForItem(tag, TagType.REC);; 			
-			client.sadd(sRec_Tag_Items, mItem.getId().toString());
+			addRecommendationTag(mItem.getId(), tag);
 		}
 	}
 
@@ -86,20 +78,26 @@ public class RedisPersister implements MatchableItemPersiser {
 
 	@Override
 	public void addDesciptionTag(Long id, String tagName) {
-		// TODO Auto-generated method stub
-
+		String itemKeyForTag = getItemKeyForTags(id, TagType.DESC);
+		LOG.debug("Adding tag {} to Item {} using key {}", tagName, id, itemKeyForTag);
+		client.sadd(itemKeyForTag, tagName);
+		String sDesc_Tag_Items = getTagKeyForItem(tagName, TagType.DESC);
+		LOG.debug("Adding Item {} to tag {} using key {}", id, tagName, sDesc_Tag_Items);
+		client.sadd(sDesc_Tag_Items, id.toString());
 	}
 
 	@Override
 	public void removeDesciptionTag(Long id, String tagName) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void addRecommendationTag(Long id, String tagName) {
-		// TODO Auto-generated method stub
-
+		String itemKeyForTag = getItemKeyForTags(id, TagType.REC);
+		LOG.debug("Removing tag {} to Item {} using key {}", tagName, id, itemKeyForTag);
+		client.sadd(getItemKeyForTags(id, TagType.REC), tagName);
+		String sRec_Tag_Items = getTagKeyForItem(tagName, TagType.REC);
+		LOG.debug("Adding Item {} to tag {} using key {}", id, tagName, sRec_Tag_Items);
+		client.sadd(sRec_Tag_Items, id.toString());
 	}
 
 	@Override
@@ -108,16 +106,15 @@ public class RedisPersister implements MatchableItemPersiser {
 
 	}
 
-	
-	private String getItemKey(Long id){
+	private String getItemKey(Long id) {
 		return new StringBuilder("item:").append(id).toString();
 	}
-	
-	private String getItemKeyForTags(Long id, TagType tagType){
+
+	private String getItemKeyForTags(Long id, TagType tagType) {
 		return new StringBuilder("item:").append(id).append(":").append(tagType).toString();
 	}
-	
-	private String getTagKeyForItem(String tag, TagType tagType){
+
+	private String getTagKeyForItem(String tag, TagType tagType) {
 		return new StringBuilder(tagType.toString()).append(":").append(tag).append(":items").toString();
 	}
 }
