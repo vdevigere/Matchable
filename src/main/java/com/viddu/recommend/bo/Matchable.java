@@ -1,8 +1,7 @@
 package com.viddu.recommend.bo;
 
-import java.awt.Image;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -11,8 +10,8 @@ public class Matchable {
 	private Long id;
 	// private List<Image> imageList;
 	private String title;
-	private List<Tag> descriptionTags = new ArrayList<Tag>();
-	private List<Tag> recommendationTags = new ArrayList<Tag>();
+	private Set<String> descriptionTags = new HashSet<String>();
+	private Set<String> recommendationTags = new HashSet<String>();
 
 	public Matchable() {
 		// TODO Auto-generated constructor stub
@@ -31,27 +30,27 @@ public class Matchable {
 		this.title = title;
 	}
 
-	public List<Tag> getDescriptionTags() {
+	public Set<String> getDescriptionTags() {
 		return descriptionTags;
 	}
 
-	public void addDescriptionTag(Tag tag) {
+	public void addDescriptionTag(String tag) {
 		descriptionTags.add(tag);
 	}
 
-	public void removeDescriptionTag(Tag tag) {
+	public void removeDescriptionTag(String tag) {
 		descriptionTags.remove(tag);
 	}
 
-	public List<Tag> getRecommendationTags() {
+	public Set<String> getRecommendationTags() {
 		return recommendationTags;
 	}
 
-	public void addRecommendationTag(Tag tag) {
+	public void addRecommendationTag(String tag) {
 		recommendationTags.add(tag);
 	}
 
-	public void removeRecommendationTag(Tag tag) {
+	public void removeRecommendationTag(String tag) {
 		recommendationTags.remove(tag);
 	}
 
@@ -63,11 +62,11 @@ public class Matchable {
 		this.id = id;
 	}
 
-	public void setDescriptionTags(List<Tag> descriptionTags) {
+	public void setDescriptionTags(Set<String> descriptionTags) {
 		this.descriptionTags = descriptionTags;
 	}
 
-	public void setRecommendationTags(List<Tag> recommendationTags) {
+	public void setRecommendationTags(Set<String> recommendationTags) {
 		this.recommendationTags = recommendationTags;
 	}
 

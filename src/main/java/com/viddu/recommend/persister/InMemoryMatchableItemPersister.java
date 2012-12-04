@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.viddu.recommend.bo.Tag;
 import com.viddu.recommend.bo.Matchable;
 
 @Singleton
@@ -40,22 +39,22 @@ public class InMemoryMatchableItemPersister implements MatchableItemPersiser {
 
 	@Override
 	public void addDesciptionTag(Long id, String tagName) {
-		matchableItemMap.get(id).addDescriptionTag(new Tag(tagName));
+		matchableItemMap.get(id).addDescriptionTag(tagName);
 	}
 
 	@Override
 	public void removeDesciptionTag(Long id, String tagName) {
-		matchableItemMap.get(id).removeDescriptionTag(new Tag(tagName));
+		matchableItemMap.get(id).removeDescriptionTag(tagName);
 	}
 
 	@Override
 	public void addRecommendationTag(Long id, String tagName) {
-		matchableItemMap.get(id).addRecommendationTag(new Tag(tagName));
+		matchableItemMap.get(id).addRecommendationTag(tagName);
 	}
 
 	@Override
 	public void removeRecommendationTag(Long id, String tagName) {
-		matchableItemMap.get(id).removeRecommendationTag(new Tag(tagName));
+		matchableItemMap.get(id).removeRecommendationTag(tagName);
 	}
 
 }
